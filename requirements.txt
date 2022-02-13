@@ -1,0 +1,7 @@
+flask 
+bs4
+requests
+lxml
+gunicorn
+pybadges
+html.parser
