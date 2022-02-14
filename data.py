@@ -1,6 +1,6 @@
 import re
-import json
 import requests
+from flask import abort
 
 from bs4 import BeautifulSoup as bs
 
@@ -28,30 +28,32 @@ def get_info(handle, website):
 
 
 def get_cf(user):
-    r = requests.get(f"https://codeforces.com/profile/{user}").text
-    soup = bs(r, 'lxml')
-    s = soup.find('span', class_='smaller')
-    s = s.text
-    rating = (re.findall(r'\d+', s)[0])
-    col = 'red'
-    y = int(rating)
-    if (y <= 1199):
-        col = '#cec8c1'
-    elif (y > 1199 and y <= 1399):
-        col = '#43A217'
-    elif (y > 1399 and y <= 1599):
-        col = "#22C4AE"
-    elif (y > 1599 and y <= 1899):
-        col = "#1427B2"
-    elif (y > 1899 and y <= 2099):
-        col = "#700CB0"
-    elif (y > 2099 and y <= 2299):
-        col = "#F9A908"
-    elif (y > 2299 and y <= 2399):
-        col = "#FBB948"
+    response = requests.get(
+        f"https://codeforces.com/api/user.info?handles={user}")
+    if response.status_code == 200:
+        json_data = response.json()
+        rating = json_data['result'][0]['maxRating']
+        col = 'red'
+        y = int(rating)
+        if (y <= 1199):
+            col = '#cec8c1'
+        elif (y > 1199 and y <= 1399):
+            col = '#43A217'
+        elif (y > 1399 and y <= 1599):
+            col = "#22C4AE"
+        elif (y > 1599 and y <= 1899):
+            col = "#1427B2"
+        elif (y > 1899 and y <= 2099):
+            col = "#700CB0"
+        elif (y > 2099 and y <= 2299):
+            col = "#F9A908"
+        elif (y > 2299 and y <= 2399):
+            col = "#FBB948"
+        else:
+            col = "#FF0000"
+        return [rating, col]
     else:
-        col = "#FF0000"
-    return [rating, col]
+        abort(404)
 
 
 def get_cc(user):
